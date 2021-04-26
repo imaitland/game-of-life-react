@@ -1,30 +1,29 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 
-const numRows: number = 50;
-const numCols: number = 50;
+const numRows = 50;
+const numCols = 50;
+type Grid = number[][];
 
 const initGrid = (x: number, y: number): Grid => {
   const arr = [];
-  for (let i = 0; i < x; i++) {
-    arr.push(Array(numCols).map((c) => 0));
-    for (let j = 0; j < y; j++) {
+  for (let i = 0; i < x; i += 1) {
+    arr.push(Array(numCols).map(() => 0));
+    for (let j = 0; j < y; j += 1) {
       arr[i][j] = 0;
     }
   }
   return arr;
 };
 
-type Grid = number[][];
-
-const operations: number[][]= [
-  [-1,-1],
+const operations: number[][] = [
+  [-1, -1],
   [-1, 0],
-  [-1,1],
+  [-1, 1],
   [0, -1],
-  [0,1],
-  [1,-1],
-  [1,0],
+  [0, 1],
+  [1, -1],
+  [1, 0],
   [1, 1],
 ];
 
@@ -32,8 +31,8 @@ const simulate = (grid: Grid): Grid => {
   // Note! It's important that this be a deep clone, Immer offers the produce method.
   const newGrid = JSON.parse(JSON.stringify(grid));
 
-  for (let r = 0; r < numRows; r++) {
-    for (let c = 0; c < numCols; c++) {
+  for (let r = 0; r < numRows; r += 1) {
+    for (let c = 0; c < numCols; c += 1) {
       let cell = grid[r][c];
 
       let liveNeighbors = 0;
@@ -44,20 +43,13 @@ const simulate = (grid: Grid): Grid => {
           r + ro >= 0 &&
           c + co >= 0
         ) {
-          if (r === 1 && c === 1) {
-            debugger;
-          }
-          const neighbor: number = grid[r+ro][c+co];
+          const neighbor: number = grid[r + ro][c + co];
           liveNeighbors += neighbor;
         }
       });
-      if (cell === 1) {
-        debugger;
-      }
       if (cell === 1 && liveNeighbors < 2) {
         cell = 0;
       } else if (cell === 1 && (liveNeighbors === 2 || liveNeighbors === 3)) {
-        console.log(r, c);
         cell = 1;
       } else if (cell === 1 && liveNeighbors > 3) {
         cell = 0;
@@ -78,7 +70,7 @@ function App() {
   const [running, toggleRunning] = useState(false);
 
   useEffect(() => {
-    let ticker: NodeJS.Timeout = setInterval(() => {}, 0);
+    let ticker: NodeJS.Timeout = (undefined as unknown) as NodeJS.Timeout;
 
     if (running) {
       ticker = setInterval(() => {
@@ -93,7 +85,7 @@ function App() {
     }
 
     const cleanUp = () => {
-      clearInterval(ticker as any)
+      clearInterval(ticker);
     };
     return cleanUp;
   }, [running]);
@@ -107,6 +99,7 @@ function App() {
   return (
     <>
       <button
+        type="button"
         onClick={() => {
           toggleRunning(!running);
         }}
@@ -115,6 +108,7 @@ function App() {
       </button>
       <div className="game">
         <div
+          role="row"
           style={{
             display: "grid",
             gridTemplateColumns: `repeat(${numCols}, 20px)`,
@@ -124,17 +118,23 @@ function App() {
           {grid.map((rows, i) => {
             return rows.map((col, j) => {
               const val = grid[i][j];
-              let color = val === 1 ? "orange" : "blue";
+              const color = val === 1 ? "orange" : "blue";
 
               return (
                 <div
+                  role="gridcell"
+                  tabIndex={j * i}
+                  aria-label="cell"
+                  // eslint-disable-next-line react/no-array-index-key
                   key={`${i}--${j}`}
-                  onClick={(_ev) => updateGrid(i, j, val === 1 ? 0 : 1)}
+                  onClick={() => updateGrid(i, j, val === 1 ? 0 : 1)}
+                  onKeyDown={() => updateGrid(i, j, val === 1 ? 0 : 1)}
                   style={{
                     border: `1px solid black`,
                     background: `${color}`,
                   }}
-                ></div />)
+                />
+              );
             });
           })}
         </div>
