@@ -47,6 +47,7 @@ const simulate = (grid: Grid): Grid => {
           liveNeighbors += neighbor;
         }
       });
+      // Rules from: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
       if (cell === 1 && liveNeighbors < 2) {
         cell = 0;
       } else if (cell === 1 && (liveNeighbors === 2 || liveNeighbors === 3)) {
