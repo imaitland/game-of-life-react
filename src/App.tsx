@@ -28,7 +28,7 @@ const operations: number[][] = [
 ];
 
 const simulate = (grid: Grid): Grid => {
-  // Note! It's important that this be a deep clone, Immer offers the produce method.
+  // Note! It's important that this be a deep clone, Immer offers the produce method if we want to get fancier.
   const newGrid = JSON.parse(JSON.stringify(grid));
 
   for (let r = 0; r < numRows; r += 1) {
